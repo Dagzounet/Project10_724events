@@ -15,7 +15,7 @@ import { useData } from "../../contexts/DataContext";
 const Page = () => {
   const { data } = useData();
   // Trie les données par date dans l'ordre décroissant (comme sur le slider)
-  const byDateDesc2 = data?.focus.sort((evtA, evtB) =>
+  const byDateDesc2 = data?.events.sort((evtA, evtB) =>
     new Date(evtA.date) > new Date(evtB.date) ? -1 : 1
   );
 
