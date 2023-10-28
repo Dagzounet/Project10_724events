@@ -13,7 +13,14 @@ import Modal from "../../containers/Modal";
 import { useData } from "../../contexts/DataContext";
 
 const Page = () => {
-  const { last } = useData();
+  const { data } = useData();
+  // Trie les données par date dans l'ordre décroissant (comme sur le slider)
+  const byDateDesc = data?.focus.sort((evtA, evtB) =>
+    new Date(evtA.date) > new Date(evtB.date) ? -1 : 1
+  );
+
+  // Pour obtenir l'élément le plus récent
+  const last = byDateDesc && byDateDesc[0];
   return (
     <>
       <header>
