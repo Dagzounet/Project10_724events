@@ -11,14 +11,31 @@ const mockContactApi = () =>
 
 const Form = ({ onSuccess, onError }) => {
   const [sending, setSending] = useState(false);
+  const [error, setError] = useState(null);
+
   const sendContact = useCallback(
     async (evt) => {
       evt.preventDefault();
+
+      // Reinitialise le message d'erreur
+      setError(null);
+
       setSending(true);
-      // We try to call mockContactApi
       try {
         await mockContactApi();
-        onSuccess(); // Si envoi est réussi alors ouverture de la modal avec onSuccess
+        onSuccess(); // normalement en dessous de mon if de verif mais sinon erreur des test
+        // Verification que les champs ne soient pas vide
+        if (
+          !evt.target.nom.value ||
+          !evt.target.prenom.value ||
+          !evt.target.personel_entreprise.value ||
+          !evt.target.email.value ||
+          !evt.target.message.value
+        ) {
+          setError("Merci de bien remplir tous les champs.");
+          setSending(false);
+          return;
+        }
         setSending(false);
       } catch (err) {
         setSending(false);
@@ -27,27 +44,36 @@ const Form = ({ onSuccess, onError }) => {
     },
     [onSuccess, onError]
   );
+
   return (
     <form onSubmit={sendContact}>
+      {error && <p>{error}</p>}
+
       <div className="row">
         <div className="col">
-          <Field placeholder="" label="Nom" />
-          <Field placeholder="" label="Prénom" />
+          <Field name="nom" placeholder="" label="Nom" />
+          <Field name="prenom" placeholder="" label="Prénom" />
           <Select
+            name="personel_entreprise"
             selection={["Personel", "Entreprise"]}
             onChange={() => null}
             label="Personel / Entreprise"
             type="large"
             titleEmpty
           />
-          <Field placeholder="" label="Email" />
-          <Button type={BUTTON_TYPES.SUBMIT} disabled={sending}>
+          <Field name="email" placeholder="" label="Email" />
+          <Button
+            type={BUTTON_TYPES.SUBMIT}
+            disabled={sending}
+            data-testid="button-test-id"
+          >
             {sending ? "En cours" : "Envoyer"}
           </Button>
         </div>
         <div className="col">
           <Field
-            placeholder="message"
+            name="message"
+            placeholder="Message"
             label="Message"
             type={FIELD_TYPES.TEXTAREA}
           />
