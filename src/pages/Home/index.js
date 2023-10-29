@@ -14,10 +14,11 @@ import { useData } from "../../contexts/DataContext";
 
 const Page = () => {
   const { data } = useData();
+  // Copie des events dans un nouveau tableau grâce à un map pour trier seulement le last
   // Trie les données par date dans l'ordre décroissant (comme sur le slider)
-  const byDateDesc2 = data?.events.sort((evtA, evtB) =>
-    new Date(evtA.date) > new Date(evtB.date) ? -1 : 1
-  );
+  const byDateDesc2 = data?.events
+    .map((event) => ({ ...event }))
+    .sort((evtA, evtB) => (new Date(evtA.date) > new Date(evtB.date) ? -1 : 1));
 
   // Pour obtenir l'élément le plus récent
   const last = byDateDesc2 && byDateDesc2[0];
