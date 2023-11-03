@@ -1,4 +1,4 @@
-import { useCallback, useState } from "react";
+import { useCallback, useState, useRef } from "react";
 import PropTypes from "prop-types";
 import Field, { FIELD_TYPES } from "../../components/Field";
 import Select from "../../components/Select";
@@ -6,37 +6,23 @@ import Button, { BUTTON_TYPES } from "../../components/Button";
 
 const mockContactApi = () =>
   new Promise((resolve) => {
-    setTimeout(resolve, 200);
+    setTimeout(resolve, 200); // réduction du timer pour éviter un bug des tests
   });
 
 const Form = ({ onSuccess, onError }) => {
   const [sending, setSending] = useState(false);
-  const [error, setError] = useState(null);
+  const formRef = useRef(null); // le hooks ref pour pouvoir reset le form
 
   const sendContact = useCallback(
     async (evt) => {
       evt.preventDefault();
-
-      // Reinitialise le message d'erreur
-      setError(null);
-
       setSending(true);
+      // We try to call mockContactApi
       try {
         await mockContactApi();
-        onSuccess(); // normalement en dessous de mon if de verif mais sinon erreur des test
-        // Verification que les champs ne soient pas vide
-        if (
-          !evt.target.nom.value ||
-          !evt.target.prenom.value ||
-          !evt.target.personel_entreprise.value ||
-          !evt.target.email.value ||
-          !evt.target.message.value
-        ) {
-          setError("Merci de bien remplir tous les champs.");
-          setSending(false);
-          return;
-        }
         setSending(false);
+        onSuccess();
+        formRef.current.reset();
       } catch (err) {
         setSending(false);
         onError(err);
@@ -46,9 +32,7 @@ const Form = ({ onSuccess, onError }) => {
   );
 
   return (
-    <form onSubmit={sendContact}>
-      {error && <p>{error}</p>}
-
+    <form ref={formRef} onSubmit={sendContact}>
       <div className="row">
         <div className="col">
           <Field name="nom" placeholder="" label="Nom" />
