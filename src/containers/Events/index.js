@@ -13,11 +13,12 @@ const EventList = () => {
   const { data, error } = useData();
   const [type, setType] = useState();
   const [currentPage, setCurrentPage] = useState(1);
-  const filteredEvents = (
+  let filteredEvents =
     (!type
       ? data?.events
-      : data?.events.filter((event) => event.type === type)) || []
-  ).filter((event, index) => {
+      : data?.events.filter((event) => event.type === type)) || []; // filtre quand un type est sélectionné avec les events qui ont un type égal au sélectionné
+  const totalEvents = filteredEvents.length; // calcul l'ensemble des events filtré
+  filteredEvents = filteredEvents.filter((event, index) => {
     if (
       (currentPage - 1) * PER_PAGE <= index &&
       PER_PAGE * currentPage > index
@@ -31,7 +32,7 @@ const EventList = () => {
     setCurrentPage(1);
     setType(evtType);
   };
-  const pageNumber = Math.ceil((filteredEvents?.length || 0) / PER_PAGE) + 1;
+  const pageNumber = Math.ceil(totalEvents / PER_PAGE); // changement du calcul par rapport à l'ensemble
   const typeList = new Set(data?.events.map((event) => event.type));
   return (
     <>
@@ -62,8 +63,13 @@ const EventList = () => {
           </div>
           <div className="Pagination">
             {[...Array(pageNumber || 0)].map((_, n) => (
-              // eslint-disable-next-line react/no-array-index-key
-              <a key={n} href="#events" onClick={() => setCurrentPage(n + 1)}>
+              <a
+                className={currentPage === n + 1 ? "active" : ""} // ajout d'une ternaire pour set une classe css qui met la page sélectionné en gras
+                // eslint-disable-next-line react/no-array-index-key
+                key={n}
+                href="#events"
+                onClick={() => setCurrentPage(n + 1)}
+              >
                 {n + 1}
               </a>
             ))}
